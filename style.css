@@ -1,0 +1,76 @@
+/* body {
+  font-family: Arial;
+  background: #111;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.login-box, .birthday-box {
+  background: #222;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+input {
+  display: block;
+  margin: 10px auto;
+  padding: 8px;
+  border-radius: 5px;
+  border: none;
+}
+
+button {
+  padding: 10px 20px;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.hidden {
+  display: none;
+}
+
+.animation {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 20px auto;
+}
+
+.sun {
+  width: 50px;
+  height: 50px;
+  background: yellow;
+  border-radius: 50%;
+  position: absolute;
+  left: 75px;
+  top: 75px;
+  z-index: 2;
+}
+
+.earth {
+  width: 30px;
+  height: 30px;
+  background: blue;
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation: orbit 5s linear infinite;
+}
+
+@keyframes orbit {
+  0% {
+    transform: rotate(0deg) translateX(100px) rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg) translateX(100px) rotate(-360deg);
+  }
+} */

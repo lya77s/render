@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Дата рождения</title>
+  <style>
+    body {
+      background-color: #0b0c2a;
+      color: white;
+      text-align: center;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 40px;
+    }
+
+    .solar-system {
+      position: relative;
+      width: 500px;
+      height: 500px;
+      margin: 0 auto;
+    }
+
+    .sun {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      background: url('sun.png') no-repeat center/cover;
+      border-radius: 50%;
+      top: 200px;
+      left: 200px;
+      z-index: 2;
+    }
+
+    .earth {
+      width: 50px;
+      height: 50px;
+      background: url('eirtg copy.png') no-repeat center/cover;
+      border-radius: 50%;
+      position: absolute;
+      top: 0;
+      left: 225px;
+      transform-origin: -175px 175px;
+      cursor: grab;
+      transition: transform 0.1s ease-out;
+    }
+
+    #date-output {
+      font-size: 22px;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Поверни Землю, чтобы выбрать дату рождения</h2>
+
+<div class="solar-system" id="solar">
+  <div class="sun"></div>
+  <div class="earth" id="earth"></div>
+</div>
+
+<div id="date-output">Дата: 1 января</div>
+
+<script>
+  const earth = document.getElementById("earth");
+  const solar = document.getElementById("solar");
+  const output = document.getElementById("date-output");
+
+  let isDragging = false;
+
+  const centerX = solar.offsetLeft + 250;
+  const centerY = solar.offsetTop + 250;
+
+  const months = [
+    { name: "января", days: 31 },
+    { name: "февраля", days: 28 },
+    { name: "марта", days: 31 },
+    { name: "апреля", days: 30 },
+    { name: "мая", days: 31 },
+    { name: "июня", days: 30 },
+    { name: "июля", days: 31 },
+    { name: "августа", days: 31 },
+    { name: "сентября", days: 30 },
+    { name: "октября", days: 31 },
+    { name: "ноября", days: 30 },
+    { name: "декабря", days: 31 }
+  ];
+
+  function angleToDate(angleDeg) {
+    let dayOfYear = Math.round((angleDeg % 360) / 360 * 365);
+    if (dayOfYear < 0) dayOfYear += 365;
+
+    let day = dayOfYear + 1;
+    for (let m of months) {
+      if (day <= m.days) return `${day} ${m.name}`;
+      day -= m.days;
+    }
+    return "31 декабря";
+  }
+
+  function onMouseMove(e) {
+    if (!isDragging) return;
+
+    const dx = e.clientX - centerX;
+    const dy = e.clientY - centerY;
+    const angle = Math.atan2(dy, dx) * (180 / Math.PI) + 180;
+
+    earth.style.transform = `rotate(${angle}deg)`;
+    output.textContent = "Дата: " + angleToDate(angle);
+  }
+
+  earth.addEventListener("mousedown", () => {
+    isDragging = true;
+    document.addEventListener("mousemove", onMouseMove);
+  });
+
+  document.addEventListener("mouseup", () => {
+    isDragging = false;
+    document.removeEventListener("mousemove", onMouseMove);
+  });
+</script>
+
+</body>
+</html>
