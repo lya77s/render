@@ -2,123 +2,173 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Дата рождения</title>
+  <title>Дата Рождения — Галактический Стиль</title>
   <style>
     body {
-      background-color: #0b0c2a;
-      color: white;
-      text-align: center;
-      font-family: sans-serif;
       margin: 0;
-      padding: 40px;
+      padding: 0;
+      background: radial-gradient(ellipse at center, #0b0c2a 0%, #050516 100%);
+      overflow: hidden;
+      font-family: 'Arial', sans-serif;
+      color: #00f0ff;
+      user-select: none;
     }
 
-    .solar-system {
+    .universe {
       position: relative;
-      width: 500px;
-      height: 500px;
-      margin: 0 auto;
+      width: 100vw;
+      height: 100vh;
     }
 
     .sun {
       position: absolute;
-      width: 100px;
-      height: 100px;
-      background: url('sun.png') no-repeat center/cover;
+      top: 50%;
+      left: 50%;
+      width: 120px;
+      height: 120px;
+      margin-left: -60px;
+      margin-top: -60px;
+      background: radial-gradient(circle, #ffd700, #ff8c00);
       border-radius: 50%;
-      top: 200px;
-      left: 200px;
-      z-index: 2;
+      box-shadow: 0 0 50px 20px #ffb300;
+      z-index: 3;
     }
 
-    .earth {
-      width: 50px;
-      height: 50px;
-      background: url('eirtg copy.png') no-repeat center/cover;
-      border-radius: 50%;
+    .orbit, .orbit-year {
       position: absolute;
-      top: 0;
-      left: 225px;
-      transform-origin: -175px 175px;
-      cursor: grab;
-      transition: transform 0.1s ease-out;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      pointer-events: none;
     }
 
-    #date-output {
-      font-size: 22px;
-      margin-top: 30px;
+    .orbit {
+      width: 260px;
+      height: 260px;
+      border: 1px dashed rgba(0,255,255,0.2);
+    }
+
+    .orbit-year {
+      width: 500px;
+      height: 500px;
+      border: 1px dashed rgba(255,255,255,0.1);
+    }
+
+    .planet, .year-marker {
+      position: absolute;
+      transform-origin: center;
+      pointer-events: auto;
+    }
+
+    .planet {
+      width: 40px;
+      height: 40px;
+      background: url('https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg') no-repeat center/cover;
+      border-radius: 50%;
+      top: -20px;
+      left: 90px;
+      cursor: grab;
+      z-index: 4;
+      box-shadow: 0 0 15px #00f0ff;
+    }
+
+    .year-marker {
+      width: 50px;
+      height: 20px;
+      color: #fff;
+      text-align: center;
+      font-size: 12px;
+      top: -10px;
+      left: 230px;
+    }
+
+    .center-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 26px;
+      text-shadow: 0 0 10px #00f0ff;
+      z-index: 5;
     }
   </style>
 </head>
 <body>
-
-<h2>Поверни Землю, чтобы выбрать дату рождения</h2>
-
-<div class="solar-system" id="solar">
+<div class="universe" id="universe">
   <div class="sun"></div>
-  <div class="earth" id="earth"></div>
+  <div class="orbit"></div>
+  <div class="orbit-year"></div>
+  <div class="planet" id="planet"></div>
+  <div class="center-text" id="centerText">Дата: 1 января 2000</div>
 </div>
 
-<div id="date-output">Дата: 1 января</div>
-
 <script>
-  const earth = document.getElementById("earth");
-  const solar = document.getElementById("solar");
-  const output = document.getElementById("date-output");
+  const planet = document.getElementById('planet');
+  const universe = document.getElementById('universe');
+  const centerText = document.getElementById('centerText');
 
-  let isDragging = false;
-
-  const centerX = solar.offsetLeft + 250;
-  const centerY = solar.offsetTop + 250;
+  const centerX = window.innerWidth / 2;
+  const centerY = window.innerHeight / 2;
 
   const months = [
-    { name: "января", days: 31 },
-    { name: "февраля", days: 28 },
-    { name: "марта", days: 31 },
-    { name: "апреля", days: 30 },
-    { name: "мая", days: 31 },
-    { name: "июня", days: 30 },
-    { name: "июля", days: 31 },
-    { name: "августа", days: 31 },
-    { name: "сентября", days: 30 },
-    { name: "октября", days: 31 },
-    { name: "ноября", days: 30 },
-    { name: "декабря", days: 31 }
+    { name: 'января', days: 31 },
+    { name: 'февраля', days: 28 },
+    { name: 'марта', days: 31 },
+    { name: 'апреля', days: 30 },
+    { name: 'мая', days: 31 },
+    { name: 'июня', days: 30 },
+    { name: 'июля', days: 31 },
+    { name: 'августа', days: 31 },
+    { name: 'сентября', days: 30 },
+    { name: 'октября', days: 31 },
+    { name: 'ноября', days: 30 },
+    { name: 'декабря', days: 31 }
   ];
 
-  function angleToDate(angleDeg) {
-    let dayOfYear = Math.round((angleDeg % 360) / 360 * 365);
-    if (dayOfYear < 0) dayOfYear += 365;
+  let angle = 0;
+  let isDragging = false;
+  let year = 2000;
 
-    let day = dayOfYear + 1;
+  function dayFromAngle(a) {
+    let dayOfYear = Math.round((a % 360 + 360) % 360 / 360 * 365);
+    let d = dayOfYear + 1;
     for (let m of months) {
-      if (day <= m.days) return `${day} ${m.name}`;
-      day -= m.days;
+      if (d <= m.days) return { day: d, month: m.name };
+      d -= m.days;
     }
-    return "31 декабря";
+    return { day: 31, month: 'декабря' };
   }
 
-  function onMouseMove(e) {
-    if (!isDragging) return;
+  function updateText() {
+    const { day, month } = dayFromAngle(angle);
+    centerText.textContent = `Дата: ${day} ${month} ${year}`;
+  }
 
+  planet.addEventListener('mousedown', () => {
+    isDragging = true;
+  });
+  document.addEventListener('mouseup', () => {
+    isDragging = false;
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
     const dx = e.clientX - centerX;
     const dy = e.clientY - centerY;
-    const angle = Math.atan2(dy, dx) * (180 / Math.PI) + 180;
-
-    earth.style.transform = `rotate(${angle}deg)`;
-    output.textContent = "Дата: " + angleToDate(angle);
-  }
-
-  earth.addEventListener("mousedown", () => {
-    isDragging = true;
-    document.addEventListener("mousemove", onMouseMove);
+    angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    planet.style.transform = `rotate(${angle}deg)`;
+    updateText();
   });
 
-  document.addEventListener("mouseup", () => {
-    isDragging = false;
-    document.removeEventListener("mousemove", onMouseMove);
+  // Scroll to change year
+  document.addEventListener('wheel', (e) => {
+    year += e.deltaY > 0 ? -1 : 1;
+    if (year < 1900) year = 1900;
+    if (year > 2025) year = 2025;
+    updateText();
   });
+
+  updateText();
 </script>
-
 </body>
 </html>
